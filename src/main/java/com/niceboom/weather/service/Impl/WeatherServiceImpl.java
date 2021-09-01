@@ -6,9 +6,11 @@ import com.niceboom.weather.enity.JsonData;
 import com.niceboom.weather.enity.StatusCode;
 import com.niceboom.weather.enity.WeatherResult;
 import com.niceboom.weather.service.WeatherService;
+import com.niceboom.weather.utils.JedisUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSON;
+import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -25,14 +27,14 @@ public class WeatherServiceImpl implements WeatherService {
 
     /**
      * 根据日期获取天气
-     * @param city_id 城市id
+     * @param cityId 城市id
      * @param dateCode 日期代码
      * @return
      */
     @Override
-    public GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String city_id, Integer dateCode)  {
+    public GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId, Integer dateCode)  {
         //拼接请求URL
-        String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + city_id;
+        String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + cityId;
         //创建返回结果集
         GetWeatherDescriptionOutputDto resultWeather = new GetWeatherDescriptionOutputDto();
         //获取当天时间yyyyMMddHH
@@ -41,7 +43,7 @@ public class WeatherServiceImpl implements WeatherService {
         System.out.println(timeStamp);
         //结果集存入当前时间以及查询的城市
         resultWeather.setDate(timeStamp);
-        resultWeather.setCityId(city_id);
+        resultWeather.setCityId(cityId);
 
         try {
             RestTemplate restTemplate = new RestTemplate();
@@ -118,5 +120,36 @@ public class WeatherServiceImpl implements WeatherService {
             System.out.println(e);
             return resultWeather;
         }
+    }
+
+    public GetWeatherDescriptionOutputDto refreshAllWeather(String cityId){
+        //拼接请求URL
+        String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + cityId;
+        //创建返回结果集
+        GetWeatherDescriptionOutputDto resultWeather = new GetWeatherDescriptionOutputDto();
+        //获取当天时间yyyyMMddHH
+        //TODO 此处时间格式待定
+        String timeStamp = new SimpleDateFormat("yyyyMMddHH").format(Calendar.getInstance().getTime());
+        System.out.println(timeStamp);
+        //结果集存入当前时间以及查询的城市
+        resultWeather.setDate(timeStamp);
+        resultWeather.setCityId(cityId);
+        //获取最新的天气情况
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            //获得查询的所有天气String数据
+            String weatherJsonstr = restTemplate.getForObject(cityUrl, String.class);
+            System.out.println("这里是查询后返回的天气数据:" + weatherJsonstr);
+            //获取jedis连接
+            Jedis jedisResource = JedisUtil.getResource();
+            jedisResource.set(timeStamp,weatherJsonstr);
+            jedisResource.close();
+        }catch (Exception e){
+            System.out.println(e);
+        }
+        Map<String, String> resultMap = new HashMap();
+        resultMap.put("resultCode", "true");
+        resultWeather.setWeatherDescription(resultMap);
+        return resultWeather;
     }
 }

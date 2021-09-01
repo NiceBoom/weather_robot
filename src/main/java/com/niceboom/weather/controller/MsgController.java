@@ -25,8 +25,8 @@ public class MsgController {
     private MsgService msgService;
 
     //每天下午五点半发送天气提醒
-    //@Scheduled(cron = "0 30 17 1/1 * ?")
-    @Scheduled(cron = "0/3 * * * * ?")
+    @Scheduled(cron = "0 30 17 1/1 * ?")
+    //@Scheduled(cron = "0/3 * * * * ?")
     void everyDaySendMsg(){
         //TODO 验证查询结果
         //查询现在天气情况，并判断是否查询成功

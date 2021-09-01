@@ -14,4 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RequestMapping("/weather")
 public class WeatherController {
+
+    final static String CITY_KEY = "101010100";//北京城市码
+
+    @Autowired
+    private WeatherService weatherService;
+
+    //更新redis天气数据
+    //每天4点、9点、13点、19点更新天气缓存
+    //@Scheduled(cron = "0 0 4,9,13,19 1/1 * ? ")
+    @Scheduled(cron = "0/3 * * * * ?")
+    void refreshAllWeather(){
+
+        WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
+                weatherService.refreshAllWeather(WeatherController.CITY_KEY);
+
+    }
+
 }

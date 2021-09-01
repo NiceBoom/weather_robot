@@ -6,11 +6,11 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class JedisUtil {
 
-    private static JedisPool jedisPool;
+    private static final JedisPool jedisPool;
 
     static {
         //设置redis地址
-        String host = "192.168.200";
+        String host = "127.0.0.1";
         int port = 6379;
 
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();

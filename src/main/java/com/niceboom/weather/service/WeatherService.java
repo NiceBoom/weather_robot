@@ -24,12 +24,20 @@ public interface WeatherService {
     }
 
     /**
-     *
+     * 查询指定日期的城市天气
      * @param cityId 城市id
      * @param dateCode 日期代码
      * @return 封装的返回结果dto
      */
     GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId,
                                                                          Integer dateCode) ;
+
+    /**
+     *  刷新天气缓存
+     * @param cityId 城市id
+     * @return
+     */
+    GetWeatherDescriptionOutputDto refreshAllWeather(String cityId);
+
 
 }
