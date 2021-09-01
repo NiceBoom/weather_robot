@@ -22,13 +22,38 @@ public class WeatherController {
 
     //更新redis天气数据
     //每天4点、9点、13点、19点更新天气缓存
-    //@Scheduled(cron = "0 0 4,9,13,19 1/1 * ? ")
-    @Scheduled(cron = "0/3 * * * * ?")
+    @Scheduled(cron = "0 0 4,9,13,19 1/1 * ? ")
+    //@Scheduled(cron = "0/3 * * * * ?")
     void refreshAllWeather(){
-
+        //将最新数据缓存到Redis中
         WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
-
+        //判断是否获取成功
+        if(getWeatherDescriptionOutputDto.getWeatherDescription().isEmpty())
+            System.out.println("更新缓存失败，请重新缓存");
+        System.out.println("更新缓存成功");
     }
 
+    //运行项目后第0秒、1秒、3秒，缓存三次最新天气数据到Redis中
+    @Scheduled(cron = "0,1,3 * * * * ? ")
+    void cacheAfterRunAllWeather(){
+        //将最新数据缓存到Redis中
+        WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
+                weatherService.refreshAllWeather(WeatherController.CITY_KEY);
+        //判断是否获取成功
+        if(getWeatherDescriptionOutputDto.getWeatherDescription().isEmpty())
+            System.out.println("初始化天气缓存失败，请重新缓存");
+        System.out.println("初始化天气缓存成功");
+    }
+
+    @GetMapping("/manualRefreshAllWeather")
+    void manualRefreshAllWeather(){
+        //将最新数据缓存到Redis中
+        WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
+                weatherService.refreshAllWeather(WeatherController.CITY_KEY);
+        //判断是否获取成功
+        if(getWeatherDescriptionOutputDto.getWeatherDescription().isEmpty())
+            System.out.println("更新缓存失败，请重新缓存");
+        System.out.println("更新缓存成功");
+    }
 }

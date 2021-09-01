@@ -8,6 +8,7 @@ import com.niceboom.weather.enity.WeatherResult;
 import com.niceboom.weather.service.WeatherService;
 import com.niceboom.weather.utils.JedisUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.util.NumberUtils;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSON;
 import redis.clients.jedis.Jedis;
@@ -47,10 +48,22 @@ public class WeatherServiceImpl implements WeatherService {
 
         try {
             RestTemplate restTemplate = new RestTemplate();
-            //获得查询的所有天气String数据
-            String weatherJsonstr = restTemplate.getForObject(cityUrl, String.class);
-            System.out.println("这里是查询后返回的天气数据:" + weatherJsonstr);
-            //将String对象转换为DTO对象
+//            //获得查询的所有天气String数据
+//            String weatherJsonstr = restTemplate.getForObject(cityUrl, String.class);
+//            System.out.println("这里是查询后返回的天气数据:" + weatherJsonstr);
+
+            //直接到Redis中拿数据
+            String weatherJsonstr = getWeatherFromRedis(cityId);
+            //没拿到数据，就刷新缓存后再次获取天气数据
+            if(weatherJsonstr.equals("")) {
+                refreshAllWeather(cityId);
+            }
+            weatherJsonstr = getWeatherFromRedis(cityId);
+            //获取不到则直接返回错误信息
+            if(weatherJsonstr.equals("")) {
+                return resultWeather;
+            }
+            //将获取的String对象转换为DTO对象
             WeatherResult weatherResult = JSON.parseObject(weatherJsonstr, WeatherResult.class);
             System.out.println("转换后的数据结果：" + weatherResult);
             //获取天气数据列表
@@ -122,6 +135,51 @@ public class WeatherServiceImpl implements WeatherService {
         }
     }
 
+    /**
+     *  从redis中获取天气信息
+     * @param cityId 城市代码
+     * @return 天气信息json字符串
+     */
+    public String getWeatherFromRedis(String cityId){
+        //获取当天时间yyyyMMddHH
+        //TODO 此处时间格式待定
+        String timeStamp = new SimpleDateFormat("yyyyMMddHH").format(Calendar.getInstance().getTime());
+        //获取jedis连接
+        Jedis jedisResource = JedisUtil.getResource();
+        //截取当前小时数
+        String nowHourStr = timeStamp.substring(timeStamp.length() - 2, timeStamp.length());
+        int nowHourInt = Integer.parseInt(nowHourStr);
+        //处理获取的时间，截掉小时数，以便统一存入Redis的key
+        String redisKeyBefore = timeStamp.substring(0,timeStamp.length()-2);
+        //初始化天气信息
+        String weatherJsonstr = "";
+        //0点-4点从redis获取天气
+        if (nowHourInt >=0 && nowHourInt < 4) {
+            weatherJsonstr = jedisResource.get("xxx_weather_" + redisKeyBefore + "00");
+        }
+
+        //4点-9点从redis获取天气
+        if (nowHourInt >=4 && nowHourInt < 9) {
+            weatherJsonstr = jedisResource.get("xxx_weather_" + redisKeyBefore + "04");
+        }
+
+        //9点-13点从redis获取天气
+        if (nowHourInt >= 9 && nowHourInt <13) {
+            weatherJsonstr = jedisResource.get("xxx_weather_" + redisKeyBefore + "09");
+        }
+
+        //13点-19点从redis获取天气
+        if (nowHourInt >=13 && nowHourInt < 19) {
+            weatherJsonstr = jedisResource.get("xxx_weather_" + redisKeyBefore + "13");
+        }
+
+        //19点-24点从redis获取天气
+        if (nowHourInt >=19 && nowHourInt < 24) {
+            weatherJsonstr = jedisResource.get("xxx_weather_" + redisKeyBefore + "19");
+        }
+        return weatherJsonstr;
+    }
+
     public GetWeatherDescriptionOutputDto refreshAllWeather(String cityId){
         //拼接请求URL
         String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + cityId;
@@ -134,22 +192,54 @@ public class WeatherServiceImpl implements WeatherService {
         //结果集存入当前时间以及查询的城市
         resultWeather.setDate(timeStamp);
         resultWeather.setCityId(cityId);
-        //获取最新的天气情况
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            //获得查询的所有天气String数据
-            String weatherJsonstr = restTemplate.getForObject(cityUrl, String.class);
-            System.out.println("这里是查询后返回的天气数据:" + weatherJsonstr);
-            //获取jedis连接
-            Jedis jedisResource = JedisUtil.getResource();
-            jedisResource.set(timeStamp,weatherJsonstr);
-            jedisResource.close();
-        }catch (Exception e){
-            System.out.println(e);
+        Map<String, String> resultWeatherDescriptionMap = new HashMap();
+        //获取最新查询的所有天气String数据
+        RestTemplate restTemplate = new RestTemplate();
+        String weatherJsonstr = restTemplate.getForObject(cityUrl, String.class);
+        System.out.println("这里是查询后返回的天气数据:" + weatherJsonstr);
+        //获取jedis连接
+        Jedis jedisResource = JedisUtil.getResource();
+        //截取当前小时数
+        String nowHourStr = timeStamp.substring(timeStamp.length() - 2, timeStamp.length());
+        int nowHourInt = Integer.parseInt(nowHourStr);
+        //判断更新时间存入redis并设置其过期时间，过期时间延迟为一小时
+        //处理获取的时间，截掉小时数，以便统一存入Redis的key
+        String redisKeyBefore = timeStamp.substring(0,timeStamp.length()-2);
+        //0点-4点更新
+        if (nowHourInt >=0 && nowHourInt < 4) {
+            jedisResource.set("xxx_weather_" + redisKeyBefore + "00", weatherJsonstr);
+            jedisResource.expire(timeStamp, 60 * 60 * (4-nowHourInt));
         }
-        Map<String, String> resultMap = new HashMap();
-        resultMap.put("resultCode", "true");
-        resultWeather.setWeatherDescription(resultMap);
+        //4点-9点更新
+        if (nowHourInt >=4 && nowHourInt < 9) {
+            //存入redis并设置过期时间
+            jedisResource.set("xxx_weather_" + redisKeyBefore + "04", weatherJsonstr);
+            jedisResource.expire(timeStamp, 60 * 60 * (9 - nowHourInt));
+        }
+        //9点-13点更新
+        if (nowHourInt >= 9 && nowHourInt <13) {
+            //存入redis并设置过期时间
+            jedisResource.set("xxx_weather_" + redisKeyBefore + "09", weatherJsonstr);
+            jedisResource.expire(timeStamp, 60 * 60 * (13 - nowHourInt));
+        }
+        //13点-19点更新
+        if (nowHourInt >=13 && nowHourInt < 19) {
+            //存入redis并设置过期时间
+            jedisResource.set("xxx_weather_" + redisKeyBefore + "13", weatherJsonstr);
+            jedisResource.expire(timeStamp, 60 * 60 * (19 - nowHourInt));
+        }
+        //19点-24点更新
+        if (nowHourInt >=19 && nowHourInt < 24) {
+            //存入redis并设置过期时间
+            jedisResource.set("xxx_weather_" + redisKeyBefore + "19", weatherJsonstr);
+            jedisResource.expire(timeStamp, 60 * 60 * (19 - nowHourInt));
+        }
+        else
+            return resultWeather;
+        //关闭jedis连接池
+        jedisResource.close();
+        resultWeatherDescriptionMap.put("resultCode", "true");
+        resultWeather.setWeatherDescription(resultWeatherDescriptionMap);
         return resultWeather;
     }
 }
