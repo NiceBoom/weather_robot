@@ -29,7 +29,7 @@ public interface WeatherService {
      * @param dateCode 日期代码
      * @return 封装的返回结果dto
      */
-    public GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId,
+    GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId,
                                                                          Integer dateCode) ;
 
 }

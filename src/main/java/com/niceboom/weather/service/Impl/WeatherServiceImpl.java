@@ -23,18 +23,14 @@ public class WeatherServiceImpl implements WeatherService {
     final static String SOJSON_WEATHER_URL =
             "http://t.weather.itboy.net/api/weather/city/";
 
-    @Override
-    public GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId, Integer dateCode)  {
-        return null;
-    }
-
     /**
      * 根据日期获取天气
      * @param city_id 城市id
-     * @param weatherCode 日期代码
+     * @param dateCode 日期代码
      * @return
      */
-    public GetWeatherDescriptionOutputDto getWeather(String city_id, Integer weatherCode)  {
+    @Override
+    public GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String city_id, Integer dateCode)  {
         //拼接请求URL
         String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + city_id;
         //创建返回结果集
@@ -102,17 +98,17 @@ public class WeatherServiceImpl implements WeatherService {
             tomorrowWeatherMap.put("typeTomorrow", typeTomorrow);
             tomorrowWeatherMap.put("noticeTomorrow", noticeTomorrow);
 
-            if (weatherCode == StatusCode.TODAY_WEATHER) {
+            if (dateCode == StatusCode.TODAY_WEATHER) {
                 resultWeather.setWeatherDescription(todayWeatherMap);
                 //返回当天天气
                 return resultWeather;
             }
-            if (weatherCode == StatusCode.TOMORROW_WEATHER) {
+            if (dateCode == StatusCode.TOMORROW_WEATHER) {
                 resultWeather.setWeatherDescription(tomorrowWeatherMap);
                 //返回明天天气
-                return null;
+                return resultWeather;
             }
-            if (weatherCode == StatusCode.NOW_WEATHER) {
+            if (dateCode == StatusCode.NOW_WEATHER) {
                 resultWeather.setWeatherDescription(nowWeatherMap);
                 //返回当前天气
                 return resultWeather;
