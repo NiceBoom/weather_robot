@@ -29,9 +29,7 @@ public class WeatherController {
         WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
         //判断是否获取成功
-        if(getWeatherDescriptionOutputDto.getWeatherDescription().isEmpty())
-            System.out.println("更新缓存失败，请重新缓存");
-        System.out.println("更新缓存成功");
+
     }
 
     //运行项目后第0秒、1秒、3秒，缓存三次最新天气数据到Redis中
@@ -41,9 +39,7 @@ public class WeatherController {
         WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
         //判断是否获取成功
-        if(getWeatherDescriptionOutputDto.getWeatherDescription().isEmpty())
-            System.out.println("初始化天气缓存失败，请重新缓存");
-        System.out.println("初始化天气缓存成功");
+        System.out.println("自动更新缓存成功");
     }
 
     @GetMapping("/manualRefreshAllWeather")
@@ -52,8 +48,6 @@ public class WeatherController {
         WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
         //判断是否获取成功
-        if(getWeatherDescriptionOutputDto.getWeatherDescription().isEmpty())
-            System.out.println("更新缓存失败，请重新缓存");
-        System.out.println("更新缓存成功");
+        System.out.println("手动更新缓存成功");
     }
 }

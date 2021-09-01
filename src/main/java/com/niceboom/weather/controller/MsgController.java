@@ -60,6 +60,7 @@ public class MsgController {
 
     //每天早上八点半发送天气提醒
     @Scheduled(cron = "0 30 8 * * ?")
+    //@Scheduled(cron = "0/3 * * * * ?")
     void sendTime830Weather(){
         //TODO 验证查询结果
         //查询现在天气情况，并判断是否查询成功
@@ -94,6 +95,7 @@ public class MsgController {
 
     //每天早上九点发送天气提醒
     @Scheduled(cron = "0 0 9 * * ?")
+    //@Scheduled(cron = "0/3 * * * * ?")
     void sendTime900Weather(){
         //TODO 验证查询结果
         //查询现在天气情况，并判断是否查询成功
