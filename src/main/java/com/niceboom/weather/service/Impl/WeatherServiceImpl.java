@@ -208,31 +208,31 @@ public class WeatherServiceImpl implements WeatherService {
         //0点-4点更新
         if (nowHourInt >=0 && nowHourInt < 4) {
             jedisResource.set("xxx_weather_" + redisKeyBefore + "00", weatherJsonstr);
-            jedisResource.expire(timeStamp, 60 * 60 * (4-nowHourInt));
+            jedisResource.expire("xxx_weather_" + redisKeyBefore + "00", 60 * 60 * (4-nowHourInt));
         }
         //4点-9点更新
         if (nowHourInt >=4 && nowHourInt < 9) {
             //存入redis并设置过期时间
             jedisResource.set("xxx_weather_" + redisKeyBefore + "04", weatherJsonstr);
-            jedisResource.expire(timeStamp, 60 * 60 * (9 - nowHourInt));
+            jedisResource.expire("xxx_weather_" + redisKeyBefore + "04", 60 * 60 * (9 - nowHourInt));
         }
         //9点-13点更新
         if (nowHourInt >= 9 && nowHourInt <13) {
             //存入redis并设置过期时间
             jedisResource.set("xxx_weather_" + redisKeyBefore + "09", weatherJsonstr);
-            jedisResource.expire(timeStamp, 60 * 60 * (13 - nowHourInt));
+            jedisResource.expire("xxx_weather_" + redisKeyBefore + "09", 60 * 60 * (13 - nowHourInt));
         }
         //13点-19点更新
         if (nowHourInt >=13 && nowHourInt < 19) {
             //存入redis并设置过期时间
             jedisResource.set("xxx_weather_" + redisKeyBefore + "13", weatherJsonstr);
-            jedisResource.expire(timeStamp, 60 * 60 * (19 - nowHourInt));
+            jedisResource.expire("xxx_weather_" + redisKeyBefore + "13", 60 * 60 * (19 - nowHourInt));
         }
         //19点-24点更新
         if (nowHourInt >=19 && nowHourInt < 24) {
             //存入redis并设置过期时间
             jedisResource.set("xxx_weather_" + redisKeyBefore + "19", weatherJsonstr);
-            jedisResource.expire(timeStamp, 60 * 60 * (19 - nowHourInt));
+            jedisResource.expire("xxx_weather_" + redisKeyBefore + "19", 60 * 60 * (19 - nowHourInt));
         }
         else
             return resultWeather;
