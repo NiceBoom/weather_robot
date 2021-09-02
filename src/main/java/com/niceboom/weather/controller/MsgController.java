@@ -93,8 +93,8 @@ public class MsgController {
         }
     }
 
-    //每天早上九点发送天气提醒
-    @Scheduled(cron = "0 0 9 * * ?")
+    //每天早上9.01发送天气提醒
+    @Scheduled(cron = "0 1 9 * * ? ")
     //@Scheduled(cron = "0/3 * * * * ?")
     void sendTime900Weather(){
         //TODO 验证查询结果
