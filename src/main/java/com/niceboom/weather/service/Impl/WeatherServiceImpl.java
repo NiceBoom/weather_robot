@@ -128,6 +128,12 @@ public class WeatherServiceImpl implements WeatherService {
                 //返回当前天气
                 return resultWeather;
             }
+            //获取所有天气的气温
+            if(dateCode == StatusCode.REPORT_ALL_TEMPERATURE_WEATHER){
+                //将获取的日期、气温集合放到结果集里
+                resultWeather.setWeatherDescription(getAllTemperatureWeather(cityId));
+
+            }
                 return resultWeather;
         } catch (Exception e) {
             System.out.println(e);
@@ -135,6 +141,50 @@ public class WeatherServiceImpl implements WeatherService {
         }
     }
 
+
+    /**
+     *  获取Redis中所有 日期、气温 的map、集合
+     * @param cityId 城市id
+     * @return
+     */
+    public Map<String, String> getAllTemperatureWeather(String cityId){
+        //初始化返回值
+        Map<String, String> resultAllTemperatureWeather = new HashMap<>();
+        //从redis获取最新天气数据
+        String weatherJsonstr = getWeatherFromRedis(cityId);
+        //没拿到数据，就刷新缓存后再次获取天气数据
+        if(weatherJsonstr.equals("")) {
+            refreshAllWeather(cityId);
+        }
+        weatherJsonstr = getWeatherFromRedis(cityId);
+        //获取不到则直接返回错误信息
+        if(weatherJsonstr.equals("")) {
+            return resultAllTemperatureWeather;
+        }
+        //将获取的String对象转换为DTO对象
+        WeatherResult weatherResult = JSON.parseObject(weatherJsonstr, WeatherResult.class);
+        System.out.println("转换后的数据结果：" + weatherResult);
+        //获取天气数据列表
+        List<JsonData> data1 = weatherResult.getData();
+        //获取第二层嵌套数据
+        JsonData jsonData = data1.get(0);
+        //获取第三层嵌套列表
+        List<Forecast> forecast = jsonData.getForecast();
+        System.out.println("forecast=" + forecast);
+        //遍历每天的天气详情，提取出日期与温度封装进结果集
+        for (int i = 0; i < forecast.size(); i++) {
+            Forecast forecastEveryDay = forecast.get(i);
+            //处理返回的气温，只留下数值，删除所有多余字符
+            String dayBeforeHighTemperature = forecastEveryDay.getHigh();
+            String dayAfterHighTemperature = dayBeforeHighTemperature.substring(dayBeforeHighTemperature.length() - 3,
+                    dayBeforeHighTemperature.length() - 1);
+            System.out.println(dayAfterHighTemperature);
+            //将日期、气温存到结果集中
+            resultAllTemperatureWeather.put(forecastEveryDay.getDate(),
+                    dayAfterHighTemperature);
+        }
+        return resultAllTemperatureWeather;
+    }
     /**
      *  从redis中获取天气信息
      * @param cityId 城市代码

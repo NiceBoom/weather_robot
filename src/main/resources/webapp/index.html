@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+    <title>未来天气情况</title>
+    <link rel="icon" href="./img/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="/css/all.css" />
+    <link rel="stylesheet" type="text/css" href="/css/pages-paysuccess.css" />
+</head>
+
+<body>
+
+<div class="cart py-container">
+    <!--主内容-->
+    <div class="getFeatureWeather">
+        <h3>　请点击以下链接获取未来天气走势</h3>
+        <div class="getAllFeatureWeather">
+            <!-- 将myOrder.html换成查询后的-->
+            <p class="button"><a href="weatherReport.html" class="sui-btn btn-danger btn-xlarge">     获取未来天气情况</a></p>
+        </div>
+    </div>
+</div>
+<!-- 底部栏位 -->
+</body>
+<script src="js/plugins/util.js" ></script>
+<script src="js/plugins/jquery/jquery.min.js" ></script>
+<script>
+
+    let payMoney= getQueryString("payMoney");
+    if(payMoney==null){
+        payMoney=0;
+    }
+
+    $("#payMoney").text((payMoney/100).toFixed(2));
+
+</script>
+
+</html>

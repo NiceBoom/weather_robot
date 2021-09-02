@@ -10,7 +10,7 @@ public class JedisUtil {
 
     static {
         //设置redis地址
-        String host = "127.0.0.1";
+        String host = "192.168.200.128";
         int port = 6379;
 
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();

@@ -20,7 +20,7 @@ public interface WeatherService {
         String cityId;
         //此处时间格式待定
         String date;
-        Map<String, String> weatherDescription;
+        Map<String , String> weatherDescription;
     }
 
     /**
