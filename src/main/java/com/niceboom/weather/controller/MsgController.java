@@ -160,9 +160,7 @@ public class MsgController {
             System.out.println("发送消息成功，日期是="+
                     msgTomorrowDescriptionOutputDto.getDate()+
                     "城市是"+msgTomorrowDescriptionOutputDto.getCityId());
-        else {
-            System.out.println("消息发送失败，请稍后再试");
-        }
+
         return new Result<>(true, StatusCode.OK, "发送成功", tomorrowWeather);
     }
     //手动发送现在天气
@@ -174,13 +172,7 @@ public class MsgController {
         //发送现在天气消息
         MsgService.GetMsgDescriptionOutputDto msgNowDescriptionOutputDto =
                 msgService.getMsgDescriptionOutputDto(nowWeather, StatusCode.NOW_WEATHER);
-        if (msgNowDescriptionOutputDto.getMsgDescription()!= null && msgNowDescriptionOutputDto.getMsgDescription().length() != 0)
-            System.out.println("发送消息成功，日期是="+
-                    msgNowDescriptionOutputDto.getDate()+
-                    "城市是"+msgNowDescriptionOutputDto.getCityId());
-        else{
-            System.out.println("天气获取失败，请稍后再试");
-        }
+
         return new Result<>(true, StatusCode.OK, "发送成功", nowWeather);
     }
 }

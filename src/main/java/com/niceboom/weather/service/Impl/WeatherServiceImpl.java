@@ -177,6 +177,8 @@ public class WeatherServiceImpl implements WeatherService {
         if (nowHourInt >=19 && nowHourInt < 24) {
             weatherJsonstr = jedisResource.get("xxx_weather_" + redisKeyBefore + "19");
         }
+        //关闭jedis连接池
+        jedisResource.close();
         return weatherJsonstr;
     }
 
