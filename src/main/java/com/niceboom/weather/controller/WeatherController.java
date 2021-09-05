@@ -2,7 +2,6 @@ package com.niceboom.weather.controller;
 
 import com.niceboom.weather.enity.Result;
 import com.niceboom.weather.enity.StatusCode;
-import com.niceboom.weather.service.MsgService;
 import com.niceboom.weather.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,8 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
 @RestController
 @CrossOrigin
@@ -30,7 +31,7 @@ public class WeatherController {
     //@Scheduled(cron = "0/3 * * * * ?")
     void refreshAllWeather(){
         //将最新数据缓存到Redis中
-        WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
+        WeatherService.getWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
         //判断是否获取成功
 
@@ -40,7 +41,7 @@ public class WeatherController {
     //@Scheduled(cron = "0,1,3 * * * * ? ")
     void cacheAfterRunAllWeather(){
         //将最新数据缓存到Redis中
-        WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
+        WeatherService.getWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
         //判断是否获取成功
         System.out.println("自动更新缓存成功");
@@ -50,7 +51,7 @@ public class WeatherController {
     @GetMapping("/manualRefreshAllWeather")
     void manualRefreshAllWeather(){
         //将最新数据缓存到Redis中
-        WeatherService.GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
+        WeatherService.getWeatherDescriptionOutputDto getWeatherDescriptionOutputDto =
                 weatherService.refreshAllWeather(WeatherController.CITY_KEY);
         //判断是否获取成功
         System.out.println("手动更新缓存成功");
@@ -60,24 +61,19 @@ public class WeatherController {
     @GetMapping("/getAllTemperatureReport")
     Result getAllTemperatureReport(){
 
-        //初始化返回数据
-        Map<String, Integer> resultMap = new HashMap<>();
         //获取气温数据
-        WeatherService.GetWeatherDescriptionOutputDto weatherDescriptionOutputDto =
+        WeatherService.getWeatherDescriptionOutputDto weatherDescriptionOutputDto =
                 weatherService.getWeatherDescriptionOutputDto(WeatherController.CITY_KEY,
                         StatusCode.REPORT_ALL_TEMPERATURE_WEATHER);
         Map<String, String> allTemperature = weatherDescriptionOutputDto.getWeatherDescription();
-        //处理气温数据，将String的气温全换成Integer类型
-        //TODO for-each 当map为空时会抛异常，所以要先检查map不为空
-        for (Map.Entry<String, String> entry : allTemperature.entrySet()) {
-            try {
-                int intTemperature = Integer.parseInt(entry.getValue());
-                resultMap.put(entry.getKey(), intTemperature);
-            }catch (Exception e){
-                System.out.println(e);
-            }
+        //判断是否获取成功
+        if(allTemperature.isEmpty()){
+            System.out.println("获取失败，请重新获取");
         }
-        return new Result(true, StatusCode.OK, "获取成功", resultMap);
+        //获取所有气温变化
+        List<WeatherService.TemperatureResultNode> weatherTemperature = weatherDescriptionOutputDto.getWeatherTemperature();
+
+        return new Result(true, StatusCode.OK, "获取成功", weatherTemperature);
     }
 
 }

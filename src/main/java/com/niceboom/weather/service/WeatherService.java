@@ -2,6 +2,7 @@ package com.niceboom.weather.service;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 public interface WeatherService {
@@ -16,11 +17,25 @@ public interface WeatherService {
      * 创建查询天气返回dto
      */
     @Data
-    class GetWeatherDescriptionOutputDto{
+    class getWeatherDescriptionOutputDto {
         String cityId;
         //此处时间格式待定
         String date;
+        //具体的天气情况
         Map<String , String> weatherDescription;
+        //气温变化报告
+        List<TemperatureResultNode> weatherTemperature;
+
+    }
+
+    /**
+     * 封装的返回前端数据
+     * 封装的气温日期
+     */
+    @Data
+    class TemperatureResultNode {
+        String name;
+        Integer value;
     }
 
     /**
@@ -29,15 +44,14 @@ public interface WeatherService {
      * @param dateCode 日期代码
      * @return 封装的返回结果dto
      */
-    GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId,
-                                                                         Integer dateCode) ;
+    getWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId,
+                                                                  Integer dateCode) ;
 
     /**
      *  刷新天气缓存
      * @param cityId 城市id
      * @return
      */
-    GetWeatherDescriptionOutputDto refreshAllWeather(String cityId);
-
+    getWeatherDescriptionOutputDto refreshAllWeather(String cityId);
 
 }

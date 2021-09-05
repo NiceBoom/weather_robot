@@ -8,7 +8,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -23,7 +22,7 @@ public class MsgServiceImpl implements MsgService {
 
 
     @Override
-    public GetMsgDescriptionOutputDto getMsgDescriptionOutputDto(WeatherService.GetWeatherDescriptionOutputDto weatherDescriptionOutputDto,
+    public GetMsgDescriptionOutputDto getMsgDescriptionOutputDto(WeatherService.getWeatherDescriptionOutputDto weatherDescriptionOutputDto,
                                                                  Integer weatherCode) {
         //初始化变量
         String requestBody = "";

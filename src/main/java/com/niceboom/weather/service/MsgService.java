@@ -2,8 +2,6 @@ package com.niceboom.weather.service;
 
 import lombok.Data;
 
-import java.util.Date;
-
 public interface MsgService {
 
     /**
@@ -20,6 +18,7 @@ public interface MsgService {
         String MsgDescription;
     }
 
-    public GetMsgDescriptionOutputDto getMsgDescriptionOutputDto(WeatherService.GetWeatherDescriptionOutputDto weatherDescriptionOutputDto,
+    public GetMsgDescriptionOutputDto getMsgDescriptionOutputDto(WeatherService.getWeatherDescriptionOutputDto weatherDescriptionOutputDto,
                                                                  Integer weatherCode);
+
 }

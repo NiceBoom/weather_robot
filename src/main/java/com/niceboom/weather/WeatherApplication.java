@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class })
 @EnableScheduling
-@ComponentScan(basePackages = "com.niceboom")
 public class WeatherApplication {
 
     public static void main(String[] args) {

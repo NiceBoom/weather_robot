@@ -30,7 +30,7 @@ public class MsgController {
     void everyDaySendMsg(){
         //TODO 验证查询结果
         //查询现在天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto nowWeather =
+        WeatherService.getWeatherDescriptionOutputDto nowWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.NOW_WEATHER);
         //发送现在天气消息
         MsgService.GetMsgDescriptionOutputDto msgNowDescriptionOutputDto =
@@ -44,7 +44,7 @@ public class MsgController {
         }
 
         //查询明天天气情况
-        WeatherService.GetWeatherDescriptionOutputDto tomorrowWeather =
+        WeatherService.getWeatherDescriptionOutputDto tomorrowWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.TOMORROW_WEATHER);
         //发送明天天气消息
         MsgService.GetMsgDescriptionOutputDto msgTomorrowDescriptionOutputDto =
@@ -64,7 +64,7 @@ public class MsgController {
     void sendTime830Weather(){
         //TODO 验证查询结果
         //查询现在天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto nowWeather =
+        WeatherService.getWeatherDescriptionOutputDto nowWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.NOW_WEATHER);
         //发送现在天气消息
         MsgService.GetMsgDescriptionOutputDto msgNowDescriptionOutputDto =
@@ -79,7 +79,7 @@ public class MsgController {
 
         //TODO 验证查询结果
         //查询今天天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto todayWeather =
+        WeatherService.getWeatherDescriptionOutputDto todayWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.TODAY_WEATHER);
         //发送今天天气消息
         MsgService.GetMsgDescriptionOutputDto msgTodayDescriptionOutputDto =
@@ -99,7 +99,7 @@ public class MsgController {
     void sendTime900Weather(){
         //TODO 验证查询结果
         //查询现在天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto nowWeather =
+        WeatherService.getWeatherDescriptionOutputDto nowWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.NOW_WEATHER);
         //发送现在天气消息
         MsgService.GetMsgDescriptionOutputDto msgNowDescriptionOutputDto =
@@ -114,7 +114,7 @@ public class MsgController {
 
         //TODO 验证查询结果
         //查询今天天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto todayWeather =
+        WeatherService.getWeatherDescriptionOutputDto todayWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.TODAY_WEATHER);
         //发送今天天气消息
         MsgService.GetMsgDescriptionOutputDto msgTodayDescriptionOutputDto =
@@ -130,9 +130,9 @@ public class MsgController {
 
     //手动发送今天天气消息
     @GetMapping("/sendTodayWeatherMsg")
-    Result<WeatherService.GetWeatherDescriptionOutputDto> sendTodayWeatherMsg(){
+    Result<WeatherService.getWeatherDescriptionOutputDto> sendTodayWeatherMsg(){
         //查询今天天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto todayWeather =
+        WeatherService.getWeatherDescriptionOutputDto todayWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.TODAY_WEATHER);
         //发送今天天气消息
         MsgService.GetMsgDescriptionOutputDto msgTodayDescriptionOutputDto =
@@ -149,9 +149,9 @@ public class MsgController {
 
     //手动发送明天天气
     @GetMapping("/sendTomorrowWeatherMsg")
-    Result<WeatherService.GetWeatherDescriptionOutputDto> sendTomorrowWeatherMsg(){
+    Result<WeatherService.getWeatherDescriptionOutputDto> sendTomorrowWeatherMsg(){
         //查询明天天气情况
-        WeatherService.GetWeatherDescriptionOutputDto tomorrowWeather =
+        WeatherService.getWeatherDescriptionOutputDto tomorrowWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.TOMORROW_WEATHER);
         //发送明天天气消息
         MsgService.GetMsgDescriptionOutputDto msgTomorrowDescriptionOutputDto =
@@ -165,9 +165,9 @@ public class MsgController {
     }
     //手动发送现在天气
     @GetMapping("/sendNowWeatherMsg")
-    Result<WeatherService.GetWeatherDescriptionOutputDto> sendNowWeatherMsg(){
+    Result<WeatherService.getWeatherDescriptionOutputDto> sendNowWeatherMsg(){
         //查询现在天气情况，并判断是否查询成功
-        WeatherService.GetWeatherDescriptionOutputDto nowWeather =
+        WeatherService.getWeatherDescriptionOutputDto nowWeather =
                 weatherService.getWeatherDescriptionOutputDto(MsgController.CITYKEY, StatusCode.NOW_WEATHER);
         //发送现在天气消息
         MsgService.GetMsgDescriptionOutputDto msgNowDescriptionOutputDto =

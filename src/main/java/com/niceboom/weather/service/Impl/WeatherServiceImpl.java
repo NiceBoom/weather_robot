@@ -8,16 +8,12 @@ import com.niceboom.weather.enity.WeatherResult;
 import com.niceboom.weather.service.WeatherService;
 import com.niceboom.weather.utils.JedisUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.util.NumberUtils;
 import org.springframework.web.client.RestTemplate;
 import com.alibaba.fastjson.JSON;
 import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class WeatherServiceImpl implements WeatherService {
@@ -33,11 +29,12 @@ public class WeatherServiceImpl implements WeatherService {
      * @return
      */
     @Override
-    public GetWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId, Integer dateCode)  {
+    public getWeatherDescriptionOutputDto getWeatherDescriptionOutputDto(String cityId, Integer dateCode)  {
         //拼接请求URL
         String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + cityId;
         //创建返回结果集
-        GetWeatherDescriptionOutputDto resultWeather = new GetWeatherDescriptionOutputDto();
+        getWeatherDescriptionOutputDto resultWeather = new getWeatherDescriptionOutputDto();
+        Map<String, String> resultDescription = new HashMap<>();
         //获取当天时间yyyyMMddHH
         //TODO 此处时间格式待定
         String timeStamp = new SimpleDateFormat("yyyyMMddHH").format(Calendar.getInstance().getTime());
@@ -131,8 +128,10 @@ public class WeatherServiceImpl implements WeatherService {
             //获取所有天气的气温
             if(dateCode == StatusCode.REPORT_ALL_TEMPERATURE_WEATHER){
                 //将获取的日期、气温集合放到结果集里
-                resultWeather.setWeatherDescription(getAllTemperatureWeather(cityId));
-
+                resultWeather.setWeatherTemperature(getAllTemperatureWeather(cityId));
+                resultDescription.put("获取成功", "获取成功");
+                resultWeather.setWeatherDescription(resultDescription);
+                return resultWeather;
             }
                 return resultWeather;
         } catch (Exception e) {
@@ -147,9 +146,11 @@ public class WeatherServiceImpl implements WeatherService {
      * @param cityId 城市id
      * @return
      */
-    public Map<String, String> getAllTemperatureWeather(String cityId){
+    public List<TemperatureResultNode> getAllTemperatureWeather(String cityId){
         //初始化返回值
-        Map<String, String> resultAllTemperatureWeather = new HashMap<>();
+        List<TemperatureResultNode> resultAllTemperatureList = new ArrayList<>();
+        //初始化日期格式
+        SimpleDateFormat format = new SimpleDateFormat("MM月dd日");
         //从redis获取最新天气数据
         String weatherJsonstr = getWeatherFromRedis(cityId);
         //没拿到数据，就刷新缓存后再次获取天气数据
@@ -159,7 +160,7 @@ public class WeatherServiceImpl implements WeatherService {
         weatherJsonstr = getWeatherFromRedis(cityId);
         //获取不到则直接返回错误信息
         if(weatherJsonstr.equals("")) {
-            return resultAllTemperatureWeather;
+            return resultAllTemperatureList;
         }
         //将获取的String对象转换为DTO对象
         WeatherResult weatherResult = JSON.parseObject(weatherJsonstr, WeatherResult.class);
@@ -172,18 +173,25 @@ public class WeatherServiceImpl implements WeatherService {
         List<Forecast> forecast = jsonData.getForecast();
         System.out.println("forecast=" + forecast);
         //遍历每天的天气详情，提取出日期与温度封装进结果集
-        for (int i = 0; i < forecast.size(); i++) {
-            Forecast forecastEveryDay = forecast.get(i);
+        for (Forecast forecastEveryDay : forecast) {
             //处理返回的气温，只留下数值，删除所有多余字符
-            String dayBeforeHighTemperature = forecastEveryDay.getHigh();
-            String dayAfterHighTemperature = dayBeforeHighTemperature.substring(dayBeforeHighTemperature.length() - 3,
-                    dayBeforeHighTemperature.length() - 1);
-            System.out.println(dayAfterHighTemperature);
-            //将日期、气温存到结果集中
-            resultAllTemperatureWeather.put(forecastEveryDay.getDate(),
-                    dayAfterHighTemperature);
+            String dayBeforeHighTemperatureStr = forecastEveryDay.getHigh();
+            String dayAfterHighTemperatureStr = dayBeforeHighTemperatureStr.
+                    substring(dayBeforeHighTemperatureStr.length() - 3,
+                    dayBeforeHighTemperatureStr.length() - 1);
+            System.out.println(dayAfterHighTemperatureStr);
+            //将气温由String转化为Integer
+            int dayAfterHighTemperatureInt = Integer.parseInt(dayAfterHighTemperatureStr);
+            //获取数据中的日期并将其格式化
+            Date ymd = forecastEveryDay.getYmd();
+            String ymdString = format.format(ymd);
+            TemperatureResultNode temperatureResultNode = new TemperatureResultNode();
+            //将日期、气温存到map中
+            temperatureResultNode.setName(ymdString);
+            temperatureResultNode.setValue(dayAfterHighTemperatureInt);
+            resultAllTemperatureList.add(temperatureResultNode);
         }
-        return resultAllTemperatureWeather;
+        return resultAllTemperatureList;
     }
     /**
      *  从redis中获取天气信息
@@ -232,11 +240,16 @@ public class WeatherServiceImpl implements WeatherService {
         return weatherJsonstr;
     }
 
-    public GetWeatherDescriptionOutputDto refreshAllWeather(String cityId){
+    /**
+     * 刷新最新天气数据并存到redis中
+     * @param cityId 城市id
+     * @return
+     */
+    public getWeatherDescriptionOutputDto refreshAllWeather(String cityId){
         //拼接请求URL
         String cityUrl = WeatherServiceImpl.SOJSON_WEATHER_URL + cityId;
         //创建返回结果集
-        GetWeatherDescriptionOutputDto resultWeather = new GetWeatherDescriptionOutputDto();
+        getWeatherDescriptionOutputDto resultWeather = new getWeatherDescriptionOutputDto();
         //获取当天时间yyyyMMddHH
         //TODO 此处时间格式待定
         String timeStamp = new SimpleDateFormat("yyyyMMddHH").format(Calendar.getInstance().getTime());
@@ -253,7 +266,9 @@ public class WeatherServiceImpl implements WeatherService {
         Jedis jedisResource = JedisUtil.getResource();
         //截取当前小时数
         String nowHourStr = timeStamp.substring(timeStamp.length() - 2, timeStamp.length());
+        System.out.println("当前Str小时数为" + nowHourStr);
         int nowHourInt = Integer.parseInt(nowHourStr);
+        System.out.println("当前Int小时数为" + nowHourInt);
         //判断更新时间存入redis并设置其过期时间，过期时间延迟为一小时
         //处理获取的时间，截掉小时数，以便统一存入Redis的key
         String redisKeyBefore = timeStamp.substring(0,timeStamp.length()-2);
@@ -284,7 +299,7 @@ public class WeatherServiceImpl implements WeatherService {
         if (nowHourInt >=19 && nowHourInt < 24) {
             //存入redis并设置过期时间
             jedisResource.set("xxx_weather_" + redisKeyBefore + "19", weatherJsonstr);
-            jedisResource.expire("xxx_weather_" + redisKeyBefore + "19", 60 * 60 * (19 - nowHourInt));
+            jedisResource.expire("xxx_weather_" + redisKeyBefore + "19", 60 * 60 * (24 - nowHourInt));
         }
         else
             return resultWeather;
