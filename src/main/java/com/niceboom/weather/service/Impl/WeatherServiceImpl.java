@@ -187,8 +187,8 @@ public class WeatherServiceImpl implements WeatherService {
             String ymdString = format.format(ymd);
             TemperatureResultNode temperatureResultNode = new TemperatureResultNode();
             //将日期、气温存到map中
-            temperatureResultNode.setName(ymdString);
-            temperatureResultNode.setValue(dayAfterHighTemperatureInt);
+            temperatureResultNode.setTemperatureDate(ymdString);
+            temperatureResultNode.setTemperature(dayAfterHighTemperatureInt);
             resultAllTemperatureList.add(temperatureResultNode);
         }
         return resultAllTemperatureList;

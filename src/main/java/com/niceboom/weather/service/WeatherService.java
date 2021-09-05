@@ -34,8 +34,8 @@ public interface WeatherService {
      */
     @Data
     class TemperatureResultNode {
-        String name;
-        Integer value;
+        String temperatureDate;
+        Integer temperature;
     }
 
     /**
