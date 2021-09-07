@@ -1,4 +1,4 @@
-package com.niceboom.weather;
+package com.robot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
