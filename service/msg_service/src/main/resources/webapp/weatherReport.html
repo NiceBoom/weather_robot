@@ -7,7 +7,7 @@
     <meta charset="utf-8">
 </head>
 <body style="height: 100%; margin: 0">
-<div id="container" style="height: 100%"></div>
+<div id="container" style="width: 600px; height: 600px;"></div>
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <!-- Uncomment this line if you want to dataTool extension
@@ -27,8 +27,9 @@
 <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=<Your Key Here>"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/extension/bmap.min.js"></script>
 -->
-
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script type="text/javascript">
+    console.log('axios',axios)
     var dom = document.getElementById("container");
     var myChart = echarts.init(dom);
     var app = {};
@@ -36,25 +37,39 @@
     var option;
 
 
-
     option = {
         xAxis: {
             type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         },
         yAxis: {
             type: 'value'
         },
         series: [{
-            data: [150, 230, 224, 218, 135, 147, 260],
+            // data: [150, 230, 224, 218, 135, 147, 260],
             type: 'line'
-        }]
+        }],
+        dataset: {
+            dimensions: ['temperatureDate', 'temperature'],
+            source: []
+        }
     };
 
-    if (option && typeof option === 'object') {
-        myChart.setOption(option);
-    }
-
+    axios.get('http://localhost:8080/weather/getAllTemperatureReport', {
+        params: {
+            ID: 12345
+        }
+    })
+    .then(function (response) {
+        let data = response.data.data
+        option.dataset.source = data
+        if (option && typeof option === 'object') {
+            myChart.setOption(option);
+        }
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
 </script>
 </body>
 </html>
